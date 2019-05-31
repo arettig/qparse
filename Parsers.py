@@ -28,6 +28,97 @@ def dist(jobText, atom1, atom2):
             ind2 = 1
         return abs(float(distMatch2[ind2].split()[-1]) - float(distMatch1[0].split()[-1]))
 
+
+def GSEnergy(jobText):
+    linePattern = re.compile(r"Total energy in.*")
+    matches = re.findall(linePattern, jobText)
+    if(matches == []):
+        return None
+    else:
+        return float(matches[0].split()[-1])
+
+
+def GSSpin(jobText):
+    linePattern = re.compile(r"S\^2.*")
+    matches = re.findall(linePattern, jobText)
+    if(matches == []):
+        return None
+    else:
+        return float(matches[0].split()[-1])
+
+    
+def CISEnergies(jobText):
+    jobText = trimCIS(jobText)    
+    linePattern = re.compile(r"Total energy for state.*")
+    matches = re.findall(linePattern, jobText)
+
+    if(matches == []):
+        return None
+    else:
+        return [float(x.split()[-2]) for x in matches][NRoots(jobText)]
+
+    
+def CISSpins(jobText):
+    jobText = trimCIS(jobText)
+    linePattern = re.compile(r"S\*\*2.*")
+    matches = re.findall(linePattern, jobText)
+
+    if(matches == []):
+        return None
+    else:
+        return [float(x.split()[-1]) for x in matches][NRoots(jobText)]
+
+
+def CISDEnergies(jobText):
+    jobText = trimCISD(jobText)    
+    linePattern = re.compile(r"Total energy for state.*")
+    matches = re.findall(linePattern, jobText)
+
+    if(matches == []):
+        return None
+    else:
+        return [float(x.split()[-2]) for x in matches][NRoots(jobText)]
+
+
+def CISDTerm1(jobText):
+    linePattern = re.compile(r"term1.*")
+    matches = re.findall(linePattern, jobText)
+
+    if(matches == []):
+        return None
+    else:
+        return [float(x.split()[-1]) for x in matches][NRoots(jobText)]
+
+    
+def CISDTerm2(jobText):
+    linePattern = re.compile(r"term2.*")
+    matches = re.findall(linePattern, jobText)
+
+    if(matches == []):
+        return None
+    else:
+        return [float(x.split()[-1]) for x in matches][NRoots(jobText)]
+
+
+
+
+
+
+
+# helpers
+
+def trimCIS(jobText):
+    startInd = jobText.find("CIS Excitation Energies")
+    endInd = jobText[startInd+90:].find("---------------")
+    return jobText[startInd:endInd]
+
+
+def trimCISD(jobText):
+    startInd = jobText.find("RI-CIS(D) Excitation Energies")
+    endInd = jobText[startInd+93:].find("---------------")
+    return jobText[startInd:endInd]
+
+
 def NStates(jobText):
     rootsLine = re.findall("cis_n_roots.*",jobText)
     rootsLine += re.findall("EE_STATES .*", jobText)
@@ -42,39 +133,4 @@ def NStates(jobText):
         nroots = int(rootsLine[0].split()[-1])
     
     return nroots
-
-
-def GSEnergy(jobText):
-    linePattern = re.compile(r"Total energy in.*")
-    matches = re.findall(linePattern, jobText)
-    if(matches == []):
-        return None
-    else:
-        return float(matches[0].split()[-1])
-
-def ESEnergies(jobText):
-    linePattern = re.compile(r"Total energy for state.*")
-    matches = re.findall(linePattern, jobText)
-
-    if(matches == []):
-        return None
-    else:
-        return [float(x.split()[-2]) for x in matches][NRoots(jobText)]
-
-def GSSpin(jobText):
-    linePattern = re.compile(r"S\^2.*")
-    matches = re.findall(linePattern, jobText)
-    if(matches == []):
-        return None
-    else:
-        return float(matches[0].split()[-1])
-
-def ESSpins(jobText):
-    linePattern = re.compile(r"S\*\*2.*")
-    matches = re.findall(linePattern, jobText)
-
-    if(matches == []):
-        return None
-    else:
-        return [float(x.split()[-1]) for x in matches][NRoots(jobText)]
 

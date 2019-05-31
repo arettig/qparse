@@ -14,10 +14,9 @@ class QParser:
     dist = True
     atom1 = "H"
     atom2 = "H"
-    GSEnergy = True
-    ESEnergy = False
-    GSSpin = True
-    ESSpin = False
+    GS = True
+    CIS = False
+    CISD = False
 
     # private vars
     infile = None
@@ -27,9 +26,12 @@ class QParser:
 
     dists = []
     GSEnergies = []
-    ESEnergies = []
     GSSpins = []
-    ESSpins = []
+    CISEnergies = []
+    CISSpins = []
+    CISDEnergies = []
+    CISDTerm1s = []
+    CISDTerm2s = []
 
     def __init__(self, files):
         fileNames = files
@@ -41,11 +43,13 @@ class QParser:
             jobEnd = 0
             mFile = None
             
-            # loop through jobs in file
-            doneWithFile = False
-                    
+            parseFile(f)
 
+            
     def parseFile(filename):
+        # loop through jobs in file
+        doneWithFile = False
+
         while(not doneWithFile):
             jobText, doneWithFile = getNextJobText(filename)
 
@@ -60,16 +64,18 @@ class QParser:
         # parse out requested values
         if(dist):
             dists.append(prs.dist(jobText, atom1, atom2))
-        if(GSEnergy):
+        if(GS):
             GSEnergies.append(prs.GSEnergy(jobText))
-        if(ESEnergy):
-            ESEnergies.append(prs.ESEnergies(jobText))
-        if(GSSpin):
             GSSpins.append(prs.GSSpin(jobText))
-        if(ESSpin):
-            ESSpins.append(prs.ESSpin(jobText))
+        if(CIS):
+            CISEnergies.append(prs.CISEnergies(jobText))
+            CISSpins.append(prs.CISSpin(jobText))
+        if(CISD):
+            CISDEnergies.append(prs.CISDEnergies(jobText))
+            CISDTerm1s.append(prs.term1(jobText))
+            CISDTerm2s.append(prs.term2(jobText))
 
-            
+
     def getNextJobText(fileName):
         # mmap file
         if(mFile == None):
