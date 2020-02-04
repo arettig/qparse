@@ -3,93 +3,95 @@ import mmap
 import Parsers as prs
 
 
-jobMatchPattern = "Thank you very much"
-jobMatchOffset = len(jobMatchPattern)
+JOB_MATCH_PATTERN = "Welcome to Q-Chem"
+JOB_PATTERN_OFFSET = len(JOB_MATCH_PATTERN)
 
 
 class QParser:
-    # public vars
-    fileNames = []
-
-    dist = True
-    atom1 = "H"
-    atom2 = "H"
-    GS = True
-    CIS = False
-    CISD = False
-
-    # private vars
-    infile = None
-    mFile = None
-    jobStart = 0
-    jobEnd = -1
-
-    dists = []
-    GSEnergies = []
-    GSSpins = []
-    CISEnergies = []
-    CISSpins = []
-    CISDEnergies = []
-    CISDTerm1s = []
-    CISDTerm2s = []
-
-    def __init__(self, files):
-        fileNames = files
-        
-    def parse():
-        # loop through files
-        for f in fileNames:
-            jobStart = 0
-            jobEnd = 0
-            mFile = None
+    verbose = False
+    
+    def __init__(self, verbose = False):
+        self.verbose = verbose
             
-            parseFile(f)
-
-            
-    def parseFile(filename):
-        # loop through jobs in file
+    def parseFile(self, filename, parseMethod, args = []):
+        infile = open(filename, 'r')
+        mFile = mmap.mmap(infile.fileno(), 0, prot=mmap.PROT_READ)
+        jobStart = mFile.find(JOB_MATCH_PATTERN) + JOB_PATTERN_OFFSET
+        jobEnd = -1
         doneWithFile = False
+        
+        if(self.verbose):
+            print("Processing " + filename)
 
+        vals = []
+
+        # loop through jobs in file
         while(not doneWithFile):
-            jobText, doneWithFile = getNextJobText(filename)
+            jobText, doneWithFile, jobStart, jobEnd = self.getNextJobText(mFile, jobStart, jobEnd)
 
             # check for crash
-            if(prs.fatal(jobText)):
-                continue
+            #if(prs.fatal(jobText, args)):
+             #   continue
 
-            parseJob(jobText)
+            vals.append(parseMethod(jobText, args))
 
-            
-    def parseJob(jobText):
-        # parse out requested values
-        if(dist):
-            dists.append(prs.dist(jobText, atom1, atom2))
-        if(GS):
-            GSEnergies.append(prs.GSEnergy(jobText))
-            GSSpins.append(prs.GSSpin(jobText))
-        if(CIS):
-            CISEnergies.append(prs.CISEnergies(jobText))
-            CISSpins.append(prs.CISSpin(jobText))
-        if(CISD):
-            CISDEnergies.append(prs.CISDEnergies(jobText))
-            CISDTerm1s.append(prs.term1(jobText))
-            CISDTerm2s.append(prs.term2(jobText))
+        infile.close()
+        return vals
 
-
-    def getNextJobText(fileName):
-        # mmap file
-        if(mFile == None):
-            infile = open(fileName, 'r')
-            mFile = mmap.mmap(inFile.fileno(), 0, prot=mmap.PROT_READ)
-
+    def getNextJobText(self, mFile, jobStart, jobEnd):
         # read next job into memory
         mFile.seek(jobStart)
-        jobEnd = mFile.find(jobMatchPattern)
+        jobEnd = mFile.find(JOB_MATCH_PATTERN)
         if(jobEnd == -1):
             jobEnd = mFile.size()
         jobText = mFile.read(jobEnd - jobStart)
 
         #move buffer pointer to start of next job:
-        jobStart = jobEnd + jobMatchOffset
+        jobStart = jobEnd + JOB_PATTERN_OFFSET + 200
 
-        return jobText, jobEnd == mFile.size()
+        return jobText, jobStart >= mFile.size(), jobStart, jobEnd
+
+    def dist(self, atom1, atom2):
+        return self.parseFile(prs.dist, args=[atom1, atom2])
+
+    def GSEnergies(self, infile):
+        return self.parseFile(infile, prs.GSEnergy)
+
+    def GSSpins(self, infile):
+        return self.parseFile(infile, prs.GSSpin)
+    
+    def CISEnergies(self, infile):
+        return self.parseFile(infile, prs.CISEnergies)
+
+    def CISSpins(self, infile):
+        return self.parseFile(infile, prs.CISSpins)
+
+    def MP2Energies(self, infile):
+        return self.parseFile(infile, prs.MP2Energy)
+
+    def CISDEnergies(self, infile):
+        return self.parseFile(infile, prs.CISDEnergies)
+
+    def CCSDpTEnergies(self, infile):
+        return self.parseFile(infile, prs.CCSDpTEnergy)
+
+    def CCSDEnergies(self, infile):
+        return self.parseFile(infile, prs.CCSDEnergy)
+
+    def CC2Energies(self, infile):
+        return self.parseFile(infile, prs.CC2Energy)
+
+    def MP3Energies(self, infile):
+        return self.parseFile(infile, prs.MP3Energy)
+
+    def SCFEnergies(self, infile):
+        return self.parseFile(infile, prs.SCFEnergy)
+
+    def EEEnergies(self, infile):
+        return self.parseFile(infile, prs.EEEnergy)
+    
+    def Transitions(self, infile):
+        return self.parseFile(infile, prs.Transitions)
+
+    def BCC2Energies(self, infile):
+        return self.parseFile(infile, prs.BCC2Energy)
