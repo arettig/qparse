@@ -4,7 +4,7 @@ import re
 
 
 def fatal(jobText, args):
-    linePattern = re.compile(r"fatal")
+    linePattern = re.compile(b"fatal")
     matches = re.findall(linePattern, jobText)
     return matches != []
     
@@ -34,7 +34,7 @@ def dist(jobText, args):
 
 
 def GSEnergy(jobText, args):
-    linePattern = re.compile(r"Total energy in.*")
+    linePattern = re.compile(b"Total energy in.*")
     matches = re.findall(linePattern, jobText)
     if(matches == []):
         return None
@@ -43,7 +43,7 @@ def GSEnergy(jobText, args):
     
 
 def GSSpin(jobText, args):
-    linePattern = re.compile(r"S\^2.*")
+    linePattern = re.compile(b"S\^2.*")
     matches = re.findall(linePattern, jobText)
     if(matches == []):
         return None
@@ -54,7 +54,7 @@ def GSSpin(jobText, args):
 def CISEnergies(jobText, args):
     nroots = NRoots(jobText)
     jobText = trimCIS(jobText)    
-    linePattern = re.compile(r"Total energy for state.*")
+    linePattern = re.compile(b"Total energy for state.*")
     matches = re.findall(linePattern, jobText)
 
     if(matches == []):
@@ -66,7 +66,7 @@ def CISEnergies(jobText, args):
 def CISSpins(jobText, args):
     nroots = NRoots(jobText)
     jobText = trimCIS(jobText)
-    linePattern = re.compile(r"S\*\*2.*")
+    linePattern = re.compile(b"S\*\*2.*")
     matches = re.findall(linePattern, jobText)
 
     if(matches == []):
@@ -75,7 +75,7 @@ def CISSpins(jobText, args):
         return [float(x.split()[-1]) for x in matches][:nroots]
 
 def CISDGSEnergy(jobText, args):
-    linePattern = re.compile(r"RIMP2         total energy.*")
+    linePattern = re.compile(b"RIMP2         total energy.*")
     matches = re.findall(linePattern, jobText)
     if(matches == []):
         return None
@@ -85,7 +85,7 @@ def CISDGSEnergy(jobText, args):
 def CISDEnergies(jobText, args):
     nroots = NRoots(jobText)
     jobText = trimCISD(jobText)
-    linePattern = re.compile(r"Total energy for state.*")
+    linePattern = re.compile(b"Total energy for state.*")
     matches = re.findall(linePattern, jobText)
 
     if(matches == []):
@@ -96,7 +96,7 @@ def CISDEnergies(jobText, args):
 
 def CISDTerm1(jobText, args):
     nroots = NRoots(jobText)
-    linePattern = re.compile(r"term1.*")
+    linePattern = re.compile(b"term1.*")
     matches = re.findall(linePattern, jobText)
 
     if(matches == []):
@@ -107,7 +107,7 @@ def CISDTerm1(jobText, args):
     
 def CISDTerm2(jobText, args):
     nroots = NRoots(jobText)
-    linePattern = re.compile(r"term2.*")
+    linePattern = re.compile(b"term2.*")
     matches = re.findall(linePattern, jobText)
 
     if(matches == []):
@@ -117,50 +117,50 @@ def CISDTerm2(jobText, args):
 
 
 def CCSDpTEnergy(jobText, args):
-    linePattern = re.compile(r"CCSD\(T\) total.*")
+    linePattern = re.compile(b"CCSD\(T\) total.*")
     matches = re.findall(linePattern, jobText)
     if(matches != []):
         return float(matches[0].split()[-1])
 
 
 def CCSDEnergy(jobText, args):
-    linePattern = re.compile(r"CCSD total.*")
+    linePattern = re.compile(b"CCSD total.*")
     matches = re.findall(linePattern, jobText)
     if(matches != []):
         return float(matches[0].split()[-1])
 
 
 def CC2Energy(jobText, args):
-    matches = re.findall("CC2 total energy.*", jobText)
+    matches = re.findall(b"CC2 total energy.*", jobText)
     if(matches != []):
         return float(matches[0].split()[-1])
 
 def SCFEnergy(jobText, args):
-    matches = re.findall("SCF energy.*", jobText)
+    matches = re.findall(b"SCF energy.*", jobText)
     if(matches != []):
         return float(matches[0].split()[-1])
 
 def MP2Energy(jobText, args):    
-    matches = re.findall("MP2         total energy.*", jobText)
+    matches = re.findall(b"MP2         total energy.*", jobText)
     if(matches != []):
         return float(matches[0].split()[-2])
 
-    matches = re.findall("MP2 energy.*", jobText)
+    matches = re.findall(b"MP2 energy.*", jobText)
     if(matches != []):
         return float(matches[0].split()[-1])
     
 def koomp2CorrEnergy(jobText, args):
-    matches = re.findall("RIMP2   correlation energy.*", jobText)
+    matches = re.findall(b"RIMP2   correlation energy.*", jobText)
     if(matches != []):
         return float(matches[-1].split()[-2])
 
 def MP3Energy(jobText, args):
-    matches = re.findall("MP3 energy .*", jobText)
+    matches = re.findall(b"MP3 energy .*", jobText)
     if(matches != []):
         return float(matches[-1].split()[-1])
 
 def EEEnergy(jobText, args):
-    matches = re.findall("Excitation energy.*", jobText)
+    matches = re.findall(b"Excitation energy.*", jobText)
     if(matches != []):
         return [float(m.split()[-2]) for m in matches]
 
@@ -176,7 +176,7 @@ def Transitions(jobText, args):
     return np.array(vecs).T
 
 def BCC2Energy(jobText, args):
-    pattern = re.compile("CC2 ENERGY.*")
+    pattern = re.compile(b"CC2 ENERGY.*")
     matches = re.findall(pattern, jobText)
     if(matches != []):
         finalEnergy = float(matches[-1].split()[-1])
@@ -188,29 +188,29 @@ def BCC2Energy(jobText, args):
 #
 
 def trimGeom(jobText, args):
-    startInd = jobText.find("$molecule")
-    endInd = jobText.find("$end")
+    startInd = jobText.find(b"$molecule")
+    endInd = jobText.find(b"$end")
     return jobText[startInd:endInd]
 
 
 def trimCIS(jobText, args):
-    startInd = jobText.find("CIS Excitation Energies")
+    startInd = jobText.find(b"CIS Excitation Energies")
     endInd = jobText[startInd+90:].find("---------------") + startInd + 90
     return jobText[startInd:endInd]
 
 
 def trimCISD(jobText, args):
-    startInd = jobText.find("RI-CIS(D) Excitation Energies")
+    startInd = jobText.find(b"RI-CIS(D) Excitation Energies")
     endInd = jobText[startInd+93:].find("---------------") + startInd + 93
     return jobText[startInd:endInd]
 
 
 def NRoots(jobText, args):
-    rootsLine = re.findall("cis_n_roots.*",jobText)
-    rootsLine += re.findall("EE_STATES .*", jobText)
+    rootsLine = re.findall(b"cis_n_roots.*",jobText)
+    rootsLine += re.findall(b"EE_STATES .*", jobText)
     if(len(rootsLine) == 0):
-        singletsLine = re.findall("EE_SINGLETS .*", jobText)
-        tripletsLine = re.findall("EE_TRIPLETS .*", jobText)
+        singletsLine = re.findall(b"EE_SINGLETS .*", jobText)
+        tripletsLine = re.findall(b"EE_TRIPLETS .*", jobText)
         if(len(singletsLine) + len(tripletsLine) == 0):
             return None
         else:

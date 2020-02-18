@@ -16,7 +16,7 @@ class QParser:
     def parseFile(self, filename, parseMethod, args = []):
         infile = open(filename, 'r')
         mFile = mmap.mmap(infile.fileno(), 0, prot=mmap.PROT_READ)
-        jobStart = mFile.find(JOB_MATCH_PATTERN) + JOB_PATTERN_OFFSET
+        jobStart = mFile.find(JOB_MATCH_PATTERN.encode("utf-8")) + JOB_PATTERN_OFFSET
         jobEnd = -1
         doneWithFile = False
         
@@ -41,7 +41,7 @@ class QParser:
     def getNextJobText(self, mFile, jobStart, jobEnd):
         # read next job into memory
         mFile.seek(jobStart)
-        jobEnd = mFile.find(JOB_MATCH_PATTERN)
+        jobEnd = mFile.find(JOB_MATCH_PATTERN.encode("utf-8"))
         if(jobEnd == -1):
             jobEnd = mFile.size()
         jobText = mFile.read(jobEnd - jobStart)
