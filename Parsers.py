@@ -13,9 +13,9 @@ def dist(jobText, args):
     atom2 = args[1]
     
     jobText = trimGeom(jobText)
-    floatPattern = "-*[0-9]+\.*[0-9]*"
-    distPattern1 = re.compile(atom1 + "\s+" + floatPattern + "\s+" + floatPattern + "\s+" + floatPattern)
-    distPattern2 = re.compile(atom2 + "\s+" + floatPattern + "\s+" + floatPattern + "\s+" + floatPattern)
+    floatPattern = b"-*[0-9]+\.*[0-9]*"
+    distPattern1 = re.compile(atom1.encode() + b"\s+" + floatPattern + b"\s+" + floatPattern + b"\s+" + floatPattern)
+    distPattern2 = re.compile(atom2.encode() + b"\s+" + floatPattern + b"\s+" + floatPattern + b"\s+" + floatPattern)
 
     distMatch1 = re.findall(distPattern1, jobText)
     distMatch2 = re.findall(distPattern2, jobText)
@@ -182,12 +182,40 @@ def BCC2Energy(jobText, args):
         finalEnergy = float(matches[-1].split()[-1])
         return finalEnergy
 
+def kMP2Energy(jobText, args):
+    pattern = re.compile(b"RIMP2         total energy.*")
+    match = re.search(pattern, jobText)
+    if(match != None):
+        return float(match.group(0).split()[-2])
 
+def TAmps(jobText, args):
+    pattern = re.compile(b"t amps.*\n((?:\s|[0-9]|\.|-|\+|\n|e)*)", re.MULTILINE)
+    matches = re.findall(pattern, jobText)
+
+    ts = []
+    for match in matches:
+        lineSplitMatches = match.split(b"\n")
+        for line in lineSplitMatches:
+            vals = [float(t) for t in line.split()]
+            ts += vals
+
+    return np.array(ts)
+
+
+def MP2NBS(jobText, args):    
+    matches = re.findall(b"non-Brillouin singles    =.*", jobText)
+    if(matches != []):
+        return float(matches[0].split()[-2])
+
+def integMag(jobText, args):
+    matches = re.findall(b"Integral magnitude.*", jobText)
+    if(matches != []):
+        return float(matches[-1].split()[-1])
 #
 # helpers
 #
 
-def trimGeom(jobText, args):
+def trimGeom(jobText):
     startInd = jobText.find(b"$molecule")
     endInd = jobText.find(b"$end")
     return jobText[startInd:endInd]

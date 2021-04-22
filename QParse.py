@@ -51,8 +51,8 @@ class QParser:
 
         return jobText, jobStart >= mFile.size(), jobStart, jobEnd
 
-    def dist(self, atom1, atom2):
-        return self.parseFile(prs.dist, args=[atom1, atom2])
+    def dists(self, infile, atom1, atom2):
+        return self.parseFile(infile, prs.dist, args=[atom1, atom2])
 
     def GSEnergies(self, infile):
         return self.parseFile(infile, prs.GSEnergy)
@@ -95,3 +95,16 @@ class QParser:
 
     def BCC2Energies(self, infile):
         return self.parseFile(infile, prs.BCC2Energy)
+
+    def kMP2Energies(self, infile):
+        return self.parseFile(infile, prs.kMP2Energy)
+
+    def TAmplitudes(self, infile):
+        return self.parseFile(infile, prs.TAmps)
+
+    def MP2NBS(self, infile):
+        return self.parseFile(infile, prs.MP2NBS)
+
+    def integMags(self, infile):
+        return self.parseFile(infile, prs.integMag)
+    
